@@ -185,14 +185,20 @@ function computeNextScheduled(agent) {
   return formatDateTime(next.toISOString());
 }
 
-function computeRate(runs, interval, windowDays) {
-  const since = Date.now() - windowDays * 86400000;
-  const inWindow = runs.filter(r => new Date(r.timestamp).getTime() >= since);
-  if (inWindow.length === 0) return null;
-  const successCount = inWindow.filter(r => r.status === 'success').length;
-  const expected = interval === 'weekly' ? Math.max(1, Math.round(windowDays / 7)) : windowDays;
-  const rate = Math.min(100, Math.round((successCount / expected) * 100));
-  return rate;
+function getMonthStart() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+}
+
+function getWeekStart() {
+  const now = new Date();
+  const diffToMonday = (now.getDay() + 6) % 7; // days since most recent Monday
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - diffToMonday, 0, 0, 0, 0);
+}
+
+function computeCountSince(runs, sinceDate) {
+  const sinceMs = sinceDate.getTime();
+  return runs.filter(r => new Date(r.timestamp).getTime() >= sinceMs).length;
 }
 
 function computeStreak(runs) {
@@ -222,18 +228,10 @@ function renderCard(agent) {
 
   const rows = [];
   rows.push(row('直近実行', lastRun ? formatDateTime(lastRun.timestamp) + '(' + daysAgoLabel(lastRun.timestamp) + ')' : '記録なし'));
-
-  if (agent.type === 'auto') {
-    rows.push(row('次回予定', computeNextScheduled(agent)));
-    const rate30 = computeRate(runs, agent.interval, 30);
-    rows.push(row('直近30日稼働率', rate30 === null ? '—' : rate30 + '%'));
-    const rate7 = computeRate(runs, agent.interval, 7);
-    rows.push(row('直近7日稼働率', rate7 === null ? '—' : rate7 + '%'));
-    rows.push(row('連続稼働', computeStreak(runs) + '回'));
-  } else {
-    const last30 = runs.filter(r => Date.now() - new Date(r.timestamp).getTime() <= 30 * 86400000);
-    rows.push(row('直近30日の依頼件数', last30.length + '件'));
-  }
+  rows.push(row('次回予定', computeNextScheduled(agent)));
+  rows.push(row('今月の稼働回数', computeCountSince(runs, getMonthStart()) + '回'));
+  rows.push(row('今週の稼働回数', computeCountSince(runs, getWeekStart()) + '回'));
+  rows.push(row('連続稼働', computeStreak(runs) + '回'));
 
   return `
     <div class="card">
