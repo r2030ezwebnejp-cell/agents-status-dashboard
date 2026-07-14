@@ -228,7 +228,9 @@ function renderCard(agent) {
 
   const rows = [];
   rows.push(row('直近実行', lastRun ? formatDateTime(lastRun.timestamp) + '(' + daysAgoLabel(lastRun.timestamp) + ')' : '記録なし'));
-  rows.push(row('次回予定', computeNextScheduled(agent)));
+  if (agent.schedule) {
+    rows.push(row('次回予定', computeNextScheduled(agent)));
+  }
   rows.push(row('今月の稼働回数', computeCountSince(runs, getMonthStart()) + '回'));
   rows.push(row('今週の稼働回数', computeCountSince(runs, getWeekStart()) + '回'));
   rows.push(row('連続稼働', computeStreak(runs) + '回'));
