@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+memo/
+*.token
+*token*.txt
+.DS_Store
+.env
+.env.production
+npm-debug.log*
+.idea/

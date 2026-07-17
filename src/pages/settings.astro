@@ -1,63 +1,91 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>設定 — Agent Lab</title>
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="設定">
+  <div id="lockScreen">
+    <h1>設定画面</h1>
+    <p class="sub">PINを入力してください</p>
+    <input type="password" id="pinInput" autocomplete="off" maxlength="12">
+    <div id="lockError"></div>
+    <button onclick="tryUnlock()">開く</button>
+  </div>
+
+  <div id="app">
+    <div class="wrap">
+      <p class="sub">ここで送った操作はGitHub Issueとして送信され、次に「/agent-lab-requests」を実行したときに処理されます(即時ではありません)</p>
+
+      <div class="card">
+        <h2>手動実行</h2>
+        <p class="desc">対象エージェントを今すぐ実行するリクエストを送ります(04・05は対話が必須なため非対応)</p>
+        <div class="run-grid" id="runButtons"></div>
+      </div>
+
+      <div class="card">
+        <h2>スケジュール変更</h2>
+        <p class="desc">自動実行の時刻を変更するリクエストを送ります</p>
+        <label>対象エージェント</label>
+        <select id="schAgent"></select>
+        <div id="schWeekdayRow" style="display:none">
+          <label>曜日</label>
+          <select id="schWeekday">
+            <option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option>
+            <option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option>
+          </select>
+        </div>
+        <label>時刻</label>
+        <input type="time" id="schTime" value="20:30">
+        <div class="submit-row"><button class="btn" onclick="submitSchedule()">GitHubで送信</button></div>
+      </div>
+
+      <div class="card">
+        <h2>note公開URLの紐付け</h2>
+        <p class="desc">実績一覧ページに表示する、公開後のnote記事URLを登録します</p>
+        <label>対象エージェント</label>
+        <select id="urlAgent"></select>
+        <label>下書きの日付</label>
+        <input type="date" id="urlDate">
+        <label>note記事URL</label>
+        <input type="url" id="urlValue" placeholder="https://note.com/...">
+        <div class="submit-row"><button class="btn" onclick="submitNoteUrl()">GitHubで送信</button></div>
+      </div>
+
+      <div class="card">
+        <h2>お知らせ投稿</h2>
+        <p class="desc">サイトの「お知らせ」ページに載せる更新履歴を追加します</p>
+        <label>日付</label>
+        <input type="date" id="newsDate">
+        <label>タイトル</label>
+        <input type="text" id="newsTitle" placeholder="例: 実績一覧ページを追加しました">
+        <label>本文</label>
+        <textarea id="newsBody"></textarea>
+        <div class="submit-row"><button class="btn" onclick="submitNews()">GitHubで送信</button></div>
+      </div>
+
+      <div class="card">
+        <h2>表示テーマ</h2>
+        <p class="desc">サイト全体の配色を固定します(未設定なら閲覧者の端末設定に自動追従)</p>
+        <label>テーマ</label>
+        <select id="themeValue">
+          <option value="auto">自動(端末設定に追従)</option>
+          <option value="light">ライト固定</option>
+          <option value="dark">ダーク固定</option>
+        </select>
+        <div class="submit-row"><button class="btn" onclick="submitTheme()">GitHubで送信</button></div>
+      </div>
+
+      <div class="card">
+        <h2>直近のリクエスト</h2>
+        <p class="desc">送信済みリクエストの処理状況(オープン=未処理、クローズ=処理済み)</p>
+        <div class="req-list" id="reqList">読み込み中...</div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
 <style>
-  :root {
-    --bg: #f5f6f8;
-    --card-bg: #ffffff;
-    --text: #1c1f26;
-    --text-sub: #6b7280;
-    --border: #e5e7eb;
-    --green: #16a34a;
-    --amber: #d97706;
-    --red: #dc2626;
-    --accent: #1D5FD6;
-    --accent-soft: #e8f0fd;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f1115;
-      --card-bg: #1a1d24;
-      --text: #e5e7eb;
-      --text-sub: #9ca3af;
-      --border: #2a2e37;
-      --green: #4ade80;
-      --amber: #fbbf24;
-      --red: #f87171;
-      --accent: #6ea3f2;
-      --accent-soft: #1a2740;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0f1115; --card-bg: #1a1d24; --text: #e5e7eb; --text-sub: #9ca3af;
-    --border: #2a2e37; --green: #4ade80; --amber: #fbbf24; --red: #f87171;
-    --accent: #6ea3f2; --accent-soft: #1a2740;
-  }
-  :root[data-theme="light"] {
-    --bg: #f5f6f8; --card-bg: #ffffff; --text: #1c1f26; --text-sub: #6b7280;
-    --border: #e5e7eb; --green: #16a34a; --amber: #d97706; --red: #dc2626;
-    --accent: #1D5FD6; --accent-soft: #e8f0fd;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-    padding: 20px 16px 80px;
-  }
-  .wrap { max-width: 720px; margin: 0 auto; }
-  header { margin-bottom: 24px; }
+  .wrap { max-width: 720px; }
   h1 { font-size: 1.3rem; margin: 0 0 4px; }
   .sub { font-size: 0.85rem; color: var(--text-sub); }
-  nav.top a {
-    font-size: 0.85rem;
-    color: var(--accent);
-    text-decoration: none;
-  }
 
   #lockScreen {
     max-width: 360px;
@@ -98,7 +126,7 @@
     margin-bottom: 16px;
   }
   .card h2 { font-size: 1rem; margin: 0 0 4px; }
-  .card .desc { font-size: 0.8rem; color: var(--text-sub); margin: 0 0 14px; }
+  .card :global(.desc) { font-size: 0.8rem; color: var(--text-sub); margin: 0 0 14px; }
 
   label {
     display: block;
@@ -123,7 +151,7 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 10px;
   }
-  .run-grid button {
+  .run-grid :global(button) {
     background: var(--accent-soft);
     color: var(--accent);
     border: 1px solid var(--accent);
@@ -133,27 +161,21 @@
     font-weight: 600;
     cursor: pointer;
   }
-  .run-grid button:hover { background: var(--accent); color: #fff; }
+  .run-grid :global(button:hover) { background: var(--accent); color: #fff; }
 
   .submit-row { margin-top: 14px; }
-  .hint {
-    font-size: 0.72rem;
-    color: var(--text-sub);
-    margin-top: 8px;
-    line-height: 1.5;
-  }
 
   .req-list { font-size: 0.85rem; }
-  .req-item {
+  .req-list :global(.req-item) {
     display: flex;
     justify-content: space-between;
     gap: 10px;
     padding: 8px 0;
     border-top: 1px solid var(--border);
   }
-  .req-item:first-child { border-top: none; }
-  .req-title { flex: 1; }
-  .req-badge {
+  .req-list :global(.req-item:first-child) { border-top: none; }
+  .req-list :global(.req-title) { flex: 1; }
+  .req-list :global(.req-badge) {
     font-size: 0.68rem;
     font-weight: 700;
     padding: 2px 8px;
@@ -161,96 +183,11 @@
     white-space: nowrap;
     height: fit-content;
   }
-  .req-badge.open { background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
-  .req-badge.closed { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+  .req-list :global(.req-badge.open) { background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
+  .req-list :global(.req-badge.closed) { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
 </style>
-</head>
-<body>
 
-<div id="lockScreen">
-  <h1>設定画面</h1>
-  <p class="sub">PINを入力してください</p>
-  <input type="password" id="pinInput" autocomplete="off" maxlength="12">
-  <div id="lockError"></div>
-  <button onclick="tryUnlock()">開く</button>
-</div>
-
-<div id="app">
-  <div class="wrap">
-    <header>
-      <nav class="top"><a href="index.html">← ダッシュボードに戻る</a></nav>
-      <h1>設定</h1>
-      <p class="sub">ここで送った操作はGitHub Issueとして送信され、次に「/agent-lab-requests」を実行したときに処理されます(即時ではありません)</p>
-    </header>
-
-    <div class="card">
-      <h2>手動実行</h2>
-      <p class="desc">対象エージェントを今すぐ実行するリクエストを送ります(04・05は対話が必須なため非対応)</p>
-      <div class="run-grid" id="runButtons"></div>
-    </div>
-
-    <div class="card">
-      <h2>スケジュール変更</h2>
-      <p class="desc">自動実行の時刻を変更するリクエストを送ります</p>
-      <label>対象エージェント</label>
-      <select id="schAgent"></select>
-      <div id="schWeekdayRow" style="display:none">
-        <label>曜日</label>
-        <select id="schWeekday">
-          <option value="0">日曜</option><option value="1">月曜</option><option value="2">火曜</option>
-          <option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option>
-        </select>
-      </div>
-      <label>時刻</label>
-      <input type="time" id="schTime" value="20:30">
-      <div class="submit-row"><button class="btn" onclick="submitSchedule()">GitHubで送信</button></div>
-    </div>
-
-    <div class="card">
-      <h2>note公開URLの紐付け</h2>
-      <p class="desc">実績一覧ページに表示する、公開後のnote記事URLを登録します</p>
-      <label>対象エージェント</label>
-      <select id="urlAgent"></select>
-      <label>下書きの日付</label>
-      <input type="date" id="urlDate">
-      <label>note記事URL</label>
-      <input type="url" id="urlValue" placeholder="https://note.com/...">
-      <div class="submit-row"><button class="btn" onclick="submitNoteUrl()">GitHubで送信</button></div>
-    </div>
-
-    <div class="card">
-      <h2>お知らせ投稿</h2>
-      <p class="desc">サイトの「お知らせ」ページに載せる更新履歴を追加します</p>
-      <label>日付</label>
-      <input type="date" id="newsDate">
-      <label>タイトル</label>
-      <input type="text" id="newsTitle" placeholder="例: 実績一覧ページを追加しました">
-      <label>本文</label>
-      <textarea id="newsBody"></textarea>
-      <div class="submit-row"><button class="btn" onclick="submitNews()">GitHubで送信</button></div>
-    </div>
-
-    <div class="card">
-      <h2>表示テーマ</h2>
-      <p class="desc">サイト全体の配色を固定します(未設定なら閲覧者の端末設定に自動追従)</p>
-      <label>テーマ</label>
-      <select id="themeValue">
-        <option value="auto">自動(端末設定に追従)</option>
-        <option value="light">ライト固定</option>
-        <option value="dark">ダーク固定</option>
-      </select>
-      <div class="submit-row"><button class="btn" onclick="submitTheme()">GitHubで送信</button></div>
-    </div>
-
-    <div class="card">
-      <h2>直近のリクエスト</h2>
-      <p class="desc">送信済みリクエストの処理状況(オープン=未処理、クローズ=処理済み)</p>
-      <div class="req-list" id="reqList">読み込み中...</div>
-    </div>
-  </div>
-</div>
-
-<script>
+<script is:inline>
 const PIN = "XGLH8A";
 const REPO = "r2030ezwebnejp-cell/agents-status-dashboard";
 
@@ -395,5 +332,3 @@ function escapeHtml(str) {
   }[c]));
 }
 </script>
-</body>
-</html>

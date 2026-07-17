@@ -1,0 +1,15 @@
+{
+  "skipDangerousModePermissionPrompt": true,
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git *)",
+      "Bash(cd * && git *)",
+      "Write(public/data/status.json)",
+      "Edit(public/data/status.json)"
+    ],
+    "defaultMode": "bypassPermissions"
+  }
+}
