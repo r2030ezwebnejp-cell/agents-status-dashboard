@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// TODO: Formspreeのフォームエンドポイントに差し替える(例: https://formspree.io/f/xxxxxxxx)
+const FORMSPREE_ENDPOINT = '';
+---
+<BaseLayout title="お問い合わせ" description="Agent Labへのお問い合わせフォーム">
+  <h1>お問い合わせ</h1>
+  <p class="lead">ご質問・ご感想などありましたら、以下のフォームからお送りください。</p>
+
+  {FORMSPREE_ENDPOINT ? (
+    <form action={FORMSPREE_ENDPOINT} method="POST" class="contact-form">
+      <label for="name">お名前</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">メールアドレス</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="message">お問い合わせ内容</label>
+      <textarea id="message" name="message" required></textarea>
+
+      <button type="submit" class="btn">送信する</button>
+    </form>
+  ) : (
+    <p class="notice">現在お問い合わせフォームは準備中です。</p>
+  )}
+</BaseLayout>
+
+<style>
+  h1 { font-size: 1.5rem; margin: 0 0 8px; }
+  .lead {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    max-width: 60ch;
+    margin: 0 0 28px;
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 480px;
+  }
+  label {
+    font-size: 0.78rem;
+    color: var(--text-sub);
+    margin-top: 10px;
+  }
+  input, textarea {
+    padding: 9px 11px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  .btn {
+    margin-top: 16px;
+    align-self: flex-start;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .notice {
+    font-size: 0.88rem;
+    color: var(--text-sub);
+  }
+</style>

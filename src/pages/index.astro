@@ -1,175 +1,182 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const statusPath = path.join(process.cwd(), 'public/data/status.json');
+const statusData = JSON.parse(fs.readFileSync(statusPath, 'utf-8'));
+
+const newsPath = path.join(process.cwd(), 'public/data/news.json');
+const newsData = JSON.parse(fs.readFileSync(newsPath, 'utf-8'));
+const latestNews = [...newsData.posts].sort((a: any, b: any) => (a.date < b.date ? 1 : -1)).slice(0, 3);
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const base = import.meta.env.BASE_URL;
+const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
 ---
-<BaseLayout title="ダッシュボード" description="6体のAIエージェントの稼働状況ダッシュボード">
-  <div class="updated" id="updated">読み込み中...</div>
-  <div class="grid" id="grid"></div>
+<BaseLayout title="トップ" description="Agent Lab — 6体のAIエージェントが動く実験場">
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-content">
+      <h1>The Future Begins with AI</h1>
+      <p>6体のAIエージェントが、毎日自律的に稼働しています。</p>
+      <a class="cta" href={withBase('dashboard/')}>稼働状況を見る →</a>
+    </div>
+  </section>
+
+  <section class="agents">
+    <h2>6体のエージェント</h2>
+    <div class="agent-grid">
+      {statusData.agents.map((a: any) => (
+        <a class="agent-card" href={withBase('services/')}>
+          <span class="agent-id">{a.id}</span>
+          <span class="agent-name">{a.name}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="summary">
+    <h2>稼働実績サマリー</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>エージェント</th><th>直近実行</th><th>累計稼働回数</th></tr>
+        </thead>
+        <tbody>
+          {statusData.agents.map((a: any) => {
+            const runs = a.runs || [];
+            const last = runs.length
+              ? [...runs].sort((x: any, y: any) => (x.timestamp < y.timestamp ? 1 : -1))[0]
+              : null;
+            return (
+              <tr>
+                <td>{a.id}. {a.name}</td>
+                <td>{last ? formatDate(last.timestamp) : '記録なし'}</td>
+                <td>{runs.length}回</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="news">
+    <h2>お知らせ</h2>
+    {latestNews.length === 0 ? (
+      <p class="empty">まだお知らせはありません。</p>
+    ) : (
+      <ul>
+        {latestNews.map((p: any) => (
+          <li><time>{formatDate(p.date)}</time><span>{p.title}</span></li>
+        ))}
+      </ul>
+    )}
+    <a class="more" href={withBase('news/')}>お知らせ一覧を見る →</a>
+  </section>
+
+  <section class="cta-section">
+    <h2>もっと知りたい方へ</h2>
+    <div class="cta-links">
+      <a href={withBase('works/')}>実績一覧を見る</a>
+      <a href={withBase('contact/')}>お問い合わせ</a>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .updated {
-    font-size: 0.8rem;
-    color: var(--text-sub);
-    margin-bottom: 14px;
+  section { margin-bottom: 52px; }
+  h2 { font-size: 1.15rem; margin: 0 0 16px; }
+
+  .hero {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 64px 28px;
+    margin-bottom: 52px;
+    color: #fff;
   }
-  .grid {
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.18), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.14), transparent 50%),
+      linear-gradient(135deg, #1D5FD6 0%, #1440a0 60%, #0d2a6b 100%);
+  }
+  .hero-content { position: relative; max-width: 46ch; }
+  .hero h1 {
+    font-size: 2.1rem;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .hero p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0 0 24px;
+  }
+  .cta {
+    display: inline-block;
+    background: #fff;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 22px;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .agent-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
   }
-  .card {
+  .agent-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--text);
   }
-  .card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .card-title {
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .badge {
+  .agent-card:hover { border-color: var(--accent); }
+  .agent-id {
     font-size: 0.72rem;
-    padding: 2px 8px;
-    border-radius: 999px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .agent-name { font-size: 0.88rem; font-weight: 600; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+
+  .news ul { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .news li { display: flex; gap: 14px; font-size: 0.88rem; }
+  .news time { color: var(--text-sub); font-size: 0.78rem; white-space: nowrap; }
+  .news .empty { font-size: 0.88rem; color: var(--text-sub); }
+  .more { font-size: 0.85rem; color: var(--accent); text-decoration: none; }
+
+  .cta-links { display: flex; gap: 14px; flex-wrap: wrap; }
+  .cta-links a {
+    font-size: 0.88rem;
     font-weight: 600;
-    white-space: nowrap;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
   }
-  .badge.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
-  .badge.warn { background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
-  .badge.bad { background: color-mix(in srgb, var(--red) 18%, transparent); color: var(--red); }
-  .badge.manual { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    padding: 5px 0;
-    border-top: 1px solid var(--border);
-  }
-  .row:first-of-type { border-top: none; }
-  .row :global(.label) { color: var(--text-sub); }
-  .row :global(.value) { font-weight: 600; text-align: right; }
-  .schedule {
-    font-size: 0.75rem;
-    color: var(--text-sub);
-    margin-top: 2px;
-  }
-  .empty {
-    text-align: center;
-    color: var(--text-sub);
-    padding: 40px 0;
-  }
+  .cta-links a:hover { background: var(--accent-soft); }
 </style>
-
-<script>
-async function main() {
-  const grid = document.getElementById('grid');
-  const updatedEl = document.getElementById('updated');
-  let data;
-  try {
-    const res = await fetch('data/status.json?_=' + Date.now());
-    data = await res.json();
-  } catch (e) {
-    grid.innerHTML = '<div class="empty">データの読み込みに失敗しました</div>';
-    return;
-  }
-
-  updatedEl.textContent = data.updatedAt
-    ? '最終更新: ' + formatDateTime(data.updatedAt)
-    : '最終更新: まだ記録がありません';
-
-  grid.innerHTML = data.agents.map(renderCard).join('');
-}
-
-function formatDateTime(iso) {
-  const d = new Date(iso);
-  return d.toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-function daysAgoLabel(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const days = Math.floor(diffMs / 86400000);
-  if (days <= 0) return '今日';
-  if (days === 1) return '1日前';
-  return days + '日前';
-}
-
-function getMonthStart() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-}
-
-function getWeekStart() {
-  const now = new Date();
-  const diffToMonday = (now.getDay() + 6) % 7; // days since most recent Monday
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - diffToMonday, 0, 0, 0, 0);
-}
-
-function computeCountSince(runs, sinceDate) {
-  const sinceMs = sinceDate.getTime();
-  return runs.filter(r => new Date(r.timestamp).getTime() >= sinceMs).length;
-}
-
-function computeStreak(runs) {
-  const sorted = [...runs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  let streak = 0;
-  for (const r of sorted) {
-    if (r.status === 'success') streak++;
-    else break;
-  }
-  return streak;
-}
-
-function renderCard(agent) {
-  const runs = agent.runs || [];
-  const lastRun = runs.length ? [...runs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0] : null;
-
-  let badge = '<span class="badge manual">手動</span>';
-  if (agent.type === 'auto') {
-    if (!lastRun) {
-      badge = '<span class="badge warn">未実行</span>';
-    } else if (lastRun.status === 'success') {
-      badge = '<span class="badge ok">正常</span>';
-    } else {
-      badge = '<span class="badge bad">失敗</span>';
-    }
-  }
-
-  const rows = [];
-  rows.push(row('直近実行', lastRun ? formatDateTime(lastRun.timestamp) + '(' + daysAgoLabel(lastRun.timestamp) + ')' : '記録なし'));
-  rows.push(row('累計稼働回数', runs.length + '回'));
-  rows.push(row('今月の稼働回数', computeCountSince(runs, getMonthStart()) + '回'));
-  rows.push(row('今週の稼働回数', computeCountSince(runs, getWeekStart()) + '回'));
-  rows.push(row('連続稼働', computeStreak(runs) + '回'));
-
-  return `
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <div class="card-title">${escapeHtml(agent.id)}. ${escapeHtml(agent.name)}</div>
-          <div class="schedule">${escapeHtml(agent.scheduleLabel)}</div>
-        </div>
-        ${badge}
-      </div>
-      ${rows.join('')}
-    </div>
-  `;
-}
-
-function row(label, value) {
-  return `<div class="row"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span></div>`;
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
-main();
-</script>

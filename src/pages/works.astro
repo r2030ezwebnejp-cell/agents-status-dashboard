@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const worksPath = path.join(process.cwd(), 'public/data/works.json');
+const worksData = JSON.parse(fs.readFileSync(worksPath, 'utf-8'));
+const works = [...worksData.works].sort((a: any, b: any) => (a.date < b.date ? 1 : -1));
+
+const AGENT_NAMES: Record<string, string> = {
+  '01': 'AI Info Gather Agent',
+  '02': 'Case Study Agent',
+  '04': 'Business Email & Document Draft Agent',
+  '06': 'Business Knowledge Agent',
+};
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+<BaseLayout title="実績一覧" description="Agent Labが生成したnote記事の一覧">
+  <h1>実績一覧</h1>
+  <p class="lead">各エージェントが作成したnote記事の一覧です。公開済みのものはリンクから読めます。</p>
+
+  {works.length === 0 ? (
+    <p class="empty">まだ実績はありません。</p>
+  ) : (
+    <div class="list">
+      {works.map((w: any) => (
+        <article class="work">
+          <div class="work-head">
+            <span class="agent">{w.agent_id}. {AGENT_NAMES[w.agent_id] ?? ''}</span>
+            <time class="date">{formatDate(w.date)}</time>
+          </div>
+          <h2>
+            {w.noteUrl ? (
+              <a href={w.noteUrl} target="_blank" rel="noopener">{w.title}</a>
+            ) : (
+              w.title
+            )}
+          </h2>
+          {!w.noteUrl && <span class="badge">下書き</span>}
+        </article>
+      ))}
+    </div>
+  )}
+</BaseLayout>
+
+<style>
+  h1 { font-size: 1.5rem; margin: 0 0 8px; }
+  .lead {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    max-width: 60ch;
+    margin: 0 0 28px;
+  }
+  .empty { font-size: 0.9rem; color: var(--text-sub); }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .work {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .work-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+  h2 {
+    font-size: 1rem;
+    margin: 0 0 6px;
+  }
+  h2 a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  h2 a:hover { text-decoration: underline; }
+  .badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-sub);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+</style>

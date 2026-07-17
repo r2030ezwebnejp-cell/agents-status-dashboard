@@ -20,7 +20,13 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
   <header class="site-header">
     <a class="brand" href={`${base}`}>Agent Lab</a>
     <nav class="site-nav">
-      <a href={`${base}`}>ダッシュボード</a>
+      <a href={`${base}`}>トップ</a>
+      <a href={`${base}services/`}>サービス紹介</a>
+      <a href={`${base}works/`}>実績一覧</a>
+      <a href={`${base}news/`}>お知らせ</a>
+      <a href={`${base}about/`}>概要</a>
+      <a href={`${base}contact/`}>お問い合わせ</a>
+      <a href={`${base}dashboard/`}>ダッシュボード</a>
       <a href={`${base}settings/`}>設定</a>
     </nav>
   </header>
@@ -94,6 +100,8 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 20px;
   }
   .brand {
     font-weight: 700;
@@ -103,7 +111,8 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
   }
   .site-nav {
     display: flex;
-    gap: 18px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
   }
   .site-nav a {
     font-size: 0.85rem;
