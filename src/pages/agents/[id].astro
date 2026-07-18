@@ -186,9 +186,11 @@ function formatDateTime(iso: string) {
     align-items: flex-end;
     gap: 10px;
     height: 160px;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 16px 16px 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
   }
   .bar-col {
     flex: 1;
@@ -229,7 +231,13 @@ function formatDateTime(iso: string) {
   }
   .heat-legend .heat-cell { width: 11px; height: 11px; }
 
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+  }
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--border); }
   th { font-size: 0.68rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; }
