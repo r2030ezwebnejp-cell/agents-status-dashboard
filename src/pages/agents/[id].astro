@@ -65,6 +65,25 @@ for (let i = 5; i >= 0; i--) {
 const weeklyMax = Math.max(1, ...weeklyBars.map((b) => b.count));
 const monthlyMax = Math.max(1, ...monthlyBars.map((b) => b.count));
 
+// --- y-axis scale: "nice" step size and gridline values from 0 to a rounded top ---
+function niceStep(max: number) {
+  if (max <= 5) return 1;
+  if (max <= 10) return 2;
+  if (max <= 25) return 5;
+  if (max <= 50) return 10;
+  if (max <= 100) return 20;
+  return Math.ceil(max / 100) * 20;
+}
+function buildScale(max: number) {
+  const step = niceStep(max);
+  const top = Math.max(step, Math.ceil(max / step) * step);
+  const ticks = [];
+  for (let v = 0; v <= top; v += step) ticks.push(v);
+  return { top, ticks };
+}
+const weeklyScale = buildScale(weeklyMax);
+const monthlyScale = buildScale(monthlyMax);
+
 // --- calendar heatmap: last 53 weeks, ending today, aligned to Sunday ---
 let startStr = addDays(todayStr, -370);
 startStr = addDays(startStr, -dayOfWeek(startStr));
@@ -97,24 +116,48 @@ function formatDateTime(iso: string) {
       <button class="tab-btn" data-target="monthly" onclick="showTab(this, 'monthly')">直近6か月</button>
     </div>
     <div class="chart" id="chart-weekly">
-      {weeklyBars.map((b) => (
-        <div class="bar-col">
-          <div class="bar" style={`height:${Math.round((b.count / weeklyMax) * 100)}%`} title={`${b.label}: ${b.count}回`}>
-            <span class="bar-count">{b.count}</span>
+      <div class="axis">
+        {[...weeklyScale.ticks].reverse().map((t) => <span class="axis-tick">{t}</span>)}
+      </div>
+      <div class="plot-col">
+        <div class="plot">
+          <div class="gridlines">
+            {weeklyScale.ticks.map(() => <span class="gridline"></span>)}
           </div>
-          <span class="bar-label">{b.label}</span>
+          <div class="bars">
+            {weeklyBars.map((b) => (
+              <div class="bar-col">
+                <div class="bar" style={`height:${(b.count / weeklyScale.top) * 100}%`} title={`${b.label}: ${b.count}回`}></div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+        <div class="labels-row">
+          {weeklyBars.map((b) => <span class="bar-label">{b.label}</span>)}
+        </div>
+      </div>
     </div>
     <div class="chart" id="chart-monthly" style="display:none">
-      {monthlyBars.map((b) => (
-        <div class="bar-col">
-          <div class="bar" style={`height:${Math.round((b.count / monthlyMax) * 100)}%`} title={`${b.label}: ${b.count}回`}>
-            <span class="bar-count">{b.count}</span>
+      <div class="axis">
+        {[...monthlyScale.ticks].reverse().map((t) => <span class="axis-tick">{t}</span>)}
+      </div>
+      <div class="plot-col">
+        <div class="plot">
+          <div class="gridlines">
+            {monthlyScale.ticks.map(() => <span class="gridline"></span>)}
           </div>
-          <span class="bar-label">{b.label}</span>
+          <div class="bars">
+            {monthlyBars.map((b) => (
+              <div class="bar-col">
+                <div class="bar" style={`height:${(b.count / monthlyScale.top) * 100}%`} title={`${b.label}: ${b.count}回`}></div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+        <div class="labels-row">
+          {monthlyBars.map((b) => <span class="bar-label">{b.label}</span>)}
+        </div>
+      </div>
     </div>
   </section>
 
@@ -195,39 +238,66 @@ function formatDateTime(iso: string) {
 
   .chart {
     display: flex;
-    align-items: flex-end;
     gap: 10px;
-    height: 160px;
-    padding-top: 24px;
   }
-  .bar-col {
+  .axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 34px;
+    height: 140px;
+    flex-shrink: 0;
+  }
+  .axis-tick {
+    font-size: 0.68rem;
+    color: var(--text-sub);
+    line-height: 1;
+    transform: translateY(-50%);
+  }
+  .plot-col {
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    height: 100%;
     gap: 6px;
+    min-width: 0;
+  }
+  .plot {
+    position: relative;
+    height: 140px;
+  }
+  .gridlines {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .gridline { border-top: 1px solid var(--border); }
+  .bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .bar-col {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
   }
   .bar {
-    position: relative;
     width: 100%;
     max-width: 34px;
     background: var(--accent);
     border-radius: 4px 4px 0 0;
     min-height: 2px;
   }
-  .bar-count {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--text);
-    white-space: nowrap;
-  }
-  .bar-label { font-size: 0.68rem; color: var(--text-sub); white-space: nowrap; }
+  .labels-row { display: flex; gap: 10px; }
+  .bar-label { flex: 1; text-align: center; font-size: 0.68rem; color: var(--text-sub); white-space: nowrap; }
 
   .heatmap-wrap { overflow-x: auto; }
   .heatmap { display: flex; gap: 3px; width: max-content; }
