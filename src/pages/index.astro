@@ -118,11 +118,19 @@ const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
     white-space: nowrap;
   }
   .hero .tagline {
+    display: inline-block;
     font-family: var(--display-font);
     font-size: 1.3rem;
     font-style: italic;
     opacity: 0.92;
     margin: 0 0 24px;
+    cursor: default;
+    transition: color 0.3s ease, letter-spacing 0.3s ease, opacity 0.3s ease;
+  }
+  .hero .tagline:hover {
+    color: #f5b942;
+    letter-spacing: 0.04em;
+    opacity: 1;
   }
   .cta {
     display: inline-block;
