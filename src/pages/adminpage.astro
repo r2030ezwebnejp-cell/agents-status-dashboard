@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
+---
+<BaseLayout title="管理者モード" description="管理者モードを有効にします">
+  <section class="admin-toggle">
+    <h1>管理者モードを有効にしました</h1>
+    <p>ヘッダーの「お問い合わせ」の左に「設定」リンクが表示されるようになりました。この端末のブラウザに保存されます。</p>
+    <a class="back" href={withBase('')}>トップへ戻る</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .admin-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 28px;
+    max-width: 60ch;
+  }
+  h1 { font-size: 1.3rem; margin: 0 0 12px; }
+  p { font-size: 0.92rem; color: var(--text-sub); margin: 0 0 20px; }
+  .back {
+    display: inline-block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .back:hover { background: var(--accent-soft); }
+</style>

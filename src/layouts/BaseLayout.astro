@@ -28,14 +28,14 @@ const theme = siteSettings.theme === 'light' || siteSettings.theme === 'dark' ? 
     <div class="header-inner">
       <a class="brand" href={`${base}`}>Agent Lab</a>
       <nav class="site-nav">
-        <a class="nav-cta" href={`${base}contact/`}>お問い合わせ</a>
         <a href={`${base}`}>トップ</a>
         <a href={`${base}services/`}>サービス紹介</a>
         <a href={`${base}works/`}>実績一覧</a>
         <a href={`${base}news/`}>お知らせ</a>
         <a href={`${base}about/`}>概要</a>
         <a href={`${base}dashboard/`}>ダッシュボード</a>
-        <a href={`${base}settings/`}>設定</a>
+        <a href={`${base}settings/`} id="nav-settings" hidden>設定</a>
+        <a class="nav-cta" href={`${base}contact/`}>お問い合わせ</a>
       </nav>
     </div>
   </header>
@@ -47,6 +47,16 @@ const theme = siteSettings.theme === 'light' || siteSettings.theme === 'dark' ? 
   <footer class="site-footer">
     <p>Agent Lab — 6体のAIエージェントが動く実験場</p>
   </footer>
+
+  <script>
+    const ADMIN_KEY = 'agentlab-admin';
+    if (/\/adminpage\/?$/.test(window.location.pathname)) {
+      localStorage.setItem(ADMIN_KEY, '1');
+    }
+    if (localStorage.getItem(ADMIN_KEY) === '1') {
+      document.getElementById('nav-settings')?.removeAttribute('hidden');
+    }
+  </script>
 </body>
 </html>
 
@@ -66,7 +76,18 @@ const theme = siteSettings.theme === 'light' || siteSettings.theme === 'dark' ? 
     --header-text: #f5f6f8;
     --header-border: #262a38;
     --display-font: Didot, "Bodoni MT", "Didot LT STD", "Big Caslon", Georgia, "Times New Roman", serif;
-    --aurora-gold: #e0b155;
+    /* AI futuristic glow palette, sampled top -> bottom of the page */
+    --ai-glow-1: #4f7dfa;
+    --ai-glow-2: #7c5cff;
+    --ai-glow-3: #22d3ee;
+    --ai-glow-4: #d946ef;
+    --ai-glow-5: #14b8a6;
+    --ai-glow-alpha: 28%;
+    --bg-grad-1: #eef2ff;
+    --bg-grad-2: #ece7ff;
+    --bg-grad-3: #e2f7fa;
+    --bg-grad-4: #fbe9fb;
+    --bg-grad-5: #eafaf5;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -80,17 +101,29 @@ const theme = siteSettings.theme === 'light' || siteSettings.theme === 'dark' ? 
       --red: #f87171;
       --accent: #6ea3f2;
       --accent-soft: #1a2740;
+      --ai-glow-alpha: 55%;
+      --bg-grad-1: #060815;
+      --bg-grad-2: #100f30;
+      --bg-grad-3: #0a2233;
+      --bg-grad-4: #1c1033;
+      --bg-grad-5: #040508;
     }
   }
   :root[data-theme="dark"] {
     --bg: #1b1e28; --card-bg: #262a36; --text: #e5e7eb; --text-sub: #9ca3af;
     --border: #363b49; --green: #4ade80; --amber: #fbbf24; --red: #f87171;
     --accent: #6ea3f2; --accent-soft: #1a2740;
+    --ai-glow-alpha: 55%;
+    --bg-grad-1: #060815; --bg-grad-2: #100f30; --bg-grad-3: #0a2233;
+    --bg-grad-4: #1c1033; --bg-grad-5: #040508;
   }
   :root[data-theme="light"] {
     --bg: #f5f6f8; --card-bg: #ffffff; --text: #1c1f26; --text-sub: #6b7280;
     --border: #e5e7eb; --green: #16a34a; --amber: #d97706; --red: #dc2626;
     --accent: #1D5FD6; --accent-soft: #e8f0fd;
+    --ai-glow-alpha: 28%;
+    --bg-grad-1: #eef2ff; --bg-grad-2: #ece7ff; --bg-grad-3: #e2f7fa;
+    --bg-grad-4: #fbe9fb; --bg-grad-5: #eafaf5;
   }
   * { box-sizing: border-box; }
   body {
@@ -99,12 +132,28 @@ const theme = siteSettings.theme === 'light' || siteSettings.theme === 'dark' ? 
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
     background-color: var(--bg);
     background-image:
-      radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--accent) 48%, transparent), transparent 52%),
-      radial-gradient(circle at 92% 18%, color-mix(in srgb, var(--aurora-gold) 42%, transparent), transparent 56%),
-      radial-gradient(circle at 20% 92%, color-mix(in srgb, var(--aurora-gold) 30%, transparent), transparent 58%),
-      radial-gradient(circle at 85% 88%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 58%);
-    background-attachment: fixed;
-    background-size: cover;
+      radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--ai-glow-1) var(--ai-glow-alpha), transparent), transparent 70%),
+      radial-gradient(circle at 88% 16%, color-mix(in srgb, var(--ai-glow-2) var(--ai-glow-alpha), transparent), transparent 70%),
+      radial-gradient(circle at 15% 40%, color-mix(in srgb, var(--ai-glow-3) var(--ai-glow-alpha), transparent), transparent 70%),
+      radial-gradient(circle at 85% 62%, color-mix(in srgb, var(--ai-glow-4) var(--ai-glow-alpha), transparent), transparent 70%),
+      radial-gradient(circle at 20% 86%, color-mix(in srgb, var(--ai-glow-5) var(--ai-glow-alpha), transparent), transparent 70%),
+      radial-gradient(circle at 80% 100%, color-mix(in srgb, var(--ai-glow-2) var(--ai-glow-alpha), transparent), transparent 70%),
+      linear-gradient(180deg,
+        var(--bg-grad-1) 0%,
+        var(--bg-grad-2) 25%,
+        var(--bg-grad-3) 50%,
+        var(--bg-grad-4) 75%,
+        var(--bg-grad-5) 100%);
+    background-repeat: no-repeat;
+    background-size:
+      900px 900px,
+      950px 950px,
+      850px 850px,
+      900px 900px,
+      850px 850px,
+      950px 950px,
+      100% 100%;
+    background-attachment: scroll;
   }
   main {
     max-width: 960px;
