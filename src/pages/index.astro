@@ -23,7 +23,7 @@ const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
     <div
       class="hero-bg"
       aria-hidden="true"
-      style={`background: linear-gradient(100deg, rgba(10,16,30,0.72) 0%, rgba(10,16,30,0.42) 42%, rgba(10,16,30,0.15) 68%), url(${withBase('images/hero.jpg')}) center 88% / cover no-repeat;`}
+      style={`background: linear-gradient(100deg, rgba(10,16,30,0.72) 0%, rgba(10,16,30,0.42) 42%, rgba(10,16,30,0.15) 68%), url(${withBase('images/hero.jpg')}) center 72% / cover no-repeat;`}
     ></div>
     <div class="hero-content">
       <h1>The Future Begins with AI</h1>
@@ -108,7 +108,7 @@ const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
     position: absolute;
     inset: 0;
   }
-  .hero-content { position: relative; max-width: 46ch; }
+  .hero-content { position: relative; max-width: min(46ch, 52%); }
   .hero h1 {
     font-family: var(--display-font);
     font-size: clamp(1.9rem, 4.4vw, 3.4rem);
