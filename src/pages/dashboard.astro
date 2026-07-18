@@ -6,7 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="grid" id="grid"></div>
 </BaseLayout>
 
-<style>
+<style is:global>
   .updated {
     font-size: 0.8rem;
     color: var(--text-sub);
@@ -22,6 +22,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
   }
   .card-head {
     display: flex;
@@ -52,14 +53,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border-top: 1px solid var(--border);
   }
   .row:first-of-type { border-top: none; }
-  .row :global(.label) { color: var(--text-sub); }
-  .row :global(.value) { font-weight: 600; text-align: right; }
+  .row .label { color: var(--text-sub); }
+  .row .value { font-weight: 600; text-align: right; }
   .schedule {
     font-size: 0.75rem;
     color: var(--text-sub);
     margin-top: 2px;
   }
-  .grid :global(.detail-link) {
+  .grid .detail-link {
     display: inline-block;
     margin-top: 10px;
     font-size: 0.78rem;
