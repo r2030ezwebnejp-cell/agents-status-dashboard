@@ -36,7 +36,7 @@ const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
     <h2>My Agent</h2>
     <div class="agent-grid">
       {statusData.agents.map((a: any) => (
-        <a class="agent-card" href={withBase(`agents/${a.id}/`)}>
+        <a class="agent-card" href={withBase(`services/${a.id}/`)}>
           <span class="agent-name">{a.name}</span>
         </a>
       ))}
