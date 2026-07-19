@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
 ---
 <BaseLayout title="概要" description="Agent Labの目的と、このプロジェクトによって期待される効果について">
   <h1>概要</h1>
-  <p class="lead">Agent Labは、5体のAIエージェントが日々自律的に稼働し、情報発信から学習支援までを担う実験的なプロジェクトです。</p>
+  <p class="lead">Agent Labは、5体のAIエージェントが日々自律的に稼働し、情報発信から学習支援までを担う実験的なプロジェクトです。ここで培った知見をもとに、あなたの業務に合わせたAIエージェントの制作も承っています。</p>
 
   <section>
     <h2>このプロジェクトの目的</h2>
@@ -21,6 +24,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <li>日々の運用データ(稼働率・実行履歴)を蓄積することで、エージェント設計そのものを継続的に改善するサイクルが生まれる</li>
       <li>ビジネス英語やビジネスマナーなど、継続が力になる学習領域を、毎日AIとやり取りする習慣を通じて無理なく積み上げられる</li>
     </ul>
+  </section>
+
+  <section>
+    <h2>エージェント作成のご依頼について</h2>
+    <p class="body">
+      ここで公開している5体のエージェントは、実際にAgent Labが設計・運用してきた実例です。
+      同じような形で、あなたの業務に合わせたAIエージェントの制作もご依頼いただけます。
+      ご興味があれば、依頼フォームからお気軽にご相談ください。
+    </p>
+    <a class="btn" href={withBase('request/')}>エージェント作成を依頼する →</a>
   </section>
 </BaseLayout>
 
@@ -46,4 +59,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     line-height: 1.7;
     max-width: 68ch;
   }
+  .body {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    max-width: 66ch;
+    margin: 0 0 16px;
+  }
+  .btn {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    padding: 10px 20px;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .btn:hover { opacity: 0.9; }
 </style>
