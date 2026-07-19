@@ -17,9 +17,9 @@ function formatDate(iso: string) {
   <p class="lead">サイトの機能追加・変更など、訪問者から見て違いが分かる更新のみを記録しています。</p>
 
   {posts.length === 0 ? (
-    <p class="empty">まだお知らせはありません。</p>
+    <p class="empty panel">まだお知らせはありません。</p>
   ) : (
-    <div class="list">
+    <div class="list panel">
       {posts.map((p: any) => (
         <article class="post">
           <time class="date">{formatDate(p.date)}</time>
@@ -45,9 +45,20 @@ function formatDate(iso: string) {
     flex-direction: column;
     gap: 20px;
   }
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.16);
+  }
   .post {
     border-top: 1px solid var(--border);
     padding-top: 16px;
+  }
+  .post:first-child {
+    border-top: none;
+    padding-top: 0;
   }
   .date {
     font-size: 0.75rem;
