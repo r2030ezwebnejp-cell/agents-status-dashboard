@@ -141,6 +141,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   textarea { min-height: 70px; resize: vertical; }
 
+  input[type="date"], input[type="time"] { color-scheme: light; }
+  @media (prefers-color-scheme: dark) {
+    input[type="date"], input[type="time"] { color-scheme: dark; }
+  }
+  :global(:root[data-theme="dark"]) input[type="date"],
+  :global(:root[data-theme="dark"]) input[type="time"] { color-scheme: dark; }
+  :global(:root[data-theme="light"]) input[type="date"],
+  :global(:root[data-theme="light"]) input[type="time"] { color-scheme: light; }
+
   .run-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
