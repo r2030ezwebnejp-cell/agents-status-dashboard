@@ -11,6 +11,24 @@ function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' });
 }
+
+function linkify(text: string) {
+  const trailingPunct = /[。、,.)\]」]+$/;
+  const parts: ({ text: string } | { url: string })[] = [];
+  const matches = [...text.matchAll(/https?:\/\/\S+/g)];
+  let lastIndex = 0;
+  for (const m of matches) {
+    let url = m[0];
+    const start = m.index as number;
+    const trail = url.match(trailingPunct);
+    if (trail) url = url.slice(0, url.length - trail[0].length);
+    if (start > lastIndex) parts.push({ text: text.slice(lastIndex, start) });
+    parts.push({ url });
+    lastIndex = start + url.length;
+  }
+  if (lastIndex < text.length) parts.push({ text: text.slice(lastIndex) });
+  return parts;
+}
 ---
 <BaseLayout title="お知らせ" description="Agent Labの更新履歴">
   <h1>お知らせ</h1>
@@ -23,7 +41,17 @@ function formatDate(iso: string) {
         <article class="post">
           <time class="date">{formatDate(p.date)}</time>
           <h2>{p.title}</h2>
-          {p.body && <p class="body">{p.body}</p>}
+          {p.body && (
+            <p class="body">
+              {linkify(p.body).map((part) =>
+                'url' in part ? (
+                  <a href={part.url} target="_blank" rel="noopener noreferrer">{part.url}</a>
+                ) : (
+                  part.text
+                )
+              )}
+            </p>
+          )}
         </article>
       ))}
     </div>
@@ -67,5 +95,9 @@ function formatDate(iso: string) {
     margin: 0;
     max-width: 66ch;
     white-space: pre-wrap;
+  }
+  .body a {
+    color: var(--accent);
+    word-break: break-all;
   }
 </style>
