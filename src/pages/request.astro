@@ -147,6 +147,12 @@ const withBase = (p: string) => `${base.endsWith('/') ? base : base + '/'}${p}`;
   )}
 </BaseLayout>
 
+<script is:inline>
+  window.addEventListener('pageshow', () => {
+    document.querySelector('.request-form')?.reset();
+  });
+</script>
+
 <style>
   :global(main) { max-width: none; }
   .intro { max-width: 640px; margin: 0 auto; }
