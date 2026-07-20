@@ -24,7 +24,7 @@ const works = (worksData.works as any[])
 
 function formatDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' });
 }
 ---
 <BaseLayout title={`${AGENTS[id]} の実績`} description={`${AGENTS[id]}が投稿した記事の一覧`}>

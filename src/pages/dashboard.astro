@@ -96,7 +96,7 @@ async function main() {
 
 function formatDateTime(iso) {
   const d = new Date(iso);
-  return d.toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' });
+  return d.toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Tokyo' });
 }
 
 function daysAgoLabel(iso) {

@@ -83,7 +83,7 @@ const history = [...runs].sort((a: any, b: any) => (a.timestamp < b.timestamp ? 
 
 function formatDateTime(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' });
+  return d.toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Tokyo' });
 }
 ---
 <BaseLayout title={agent.name} description={`${agent.name}の稼働履歴とグラフ`}>
