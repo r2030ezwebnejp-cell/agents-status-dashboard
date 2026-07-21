@@ -47,7 +47,7 @@
     },
     {
       "id": "04",
-      "name": "Business Email & Document Draft Agent",
+      "name": "Practical Business English Agent",
       "type": "manual",
       "interval": "on_demand",
       "scheduleLabel": "手動依頼時",
